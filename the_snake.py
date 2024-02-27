@@ -44,7 +44,7 @@ clock = pygame.time.Clock()
 
 # Тут опишите все классы игры.
 class GameObject():
-    """Класс GameObject - родительский класс для змейки и яблока."""
+    """GameObject Общий класс для игровых объектов."""
 
     position = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
 
@@ -52,11 +52,12 @@ class GameObject():
         self.body_color = BOARD_BACKGROUND_COLOR
 
     def draw(self):
+        """Заглушка, метод будет определен в потомках."""
         pass
 
 
 class Apple(GameObject):
-    """Класс Apple."""
+    """Apple Создает объект Яблоко."""
 
     def __init__(self):
         self.position = self.randomize_position()
@@ -64,11 +65,13 @@ class Apple(GameObject):
         self.draw(screen)
 
     def randomize_position(self):
+        """Устанавливаем случайные координаты."""
         return (randint(0, GRID_WIDTH) * GRID_SIZE,
                 randint(0, GRID_HEIGHT) * GRID_SIZE
                 )
 
     def draw(self, surface):
+        """Выводим на игровое поле."""
         rect = pygame.Rect(
             (self.position[0], self.position[1]),
             (GRID_SIZE, GRID_SIZE)
@@ -78,7 +81,7 @@ class Apple(GameObject):
 
 
 class Snake(GameObject):
-    """Класс Snake."""
+    """Snake Создает объект Змейка."""
 
     def __init__(self):
         self.positions = [(SCREEN_HEIGHT // 2, SCREEN_WIDTH // 2)]
@@ -90,11 +93,13 @@ class Snake(GameObject):
         self.draw(screen)
 
     def update_direction(self):
+        """Обновляет направление движения."""
         if self.next_direction:
             self.direction = self.next_direction
             self.next_direction = None
 
     def draw(self, surface):
+        """Выводит на игровое поле."""
         for position in self.positions[:-1]:
             rect = (
                 pygame.Rect((position[0], position[1]), (GRID_SIZE, GRID_SIZE))
@@ -114,9 +119,11 @@ class Snake(GameObject):
             pygame.draw.rect(surface, BOARD_BACKGROUND_COLOR, last_rect)
 
     def get_head_position(self):
+        """Возвращает координаты головы."""
         return self.positions[0]
 
     def move(self):
+        """Основная функция перемещения."""
         d_x, d_y = self.direction
         updated_head_pos = (self.get_head_position()[0] + d_x * GRID_SIZE,
                             self.get_head_position()[1] + d_y * GRID_SIZE
@@ -170,6 +177,7 @@ def handle_keys(game_object):
 
 
 def main():
+    """Создаем классы, и логику игры."""
     # Тут нужно создать экземпляры классов.
     snake = Snake()
     apple = Apple()
