@@ -11,6 +11,7 @@ GRID_SIZE = 20
 GRID_WIDTH = SCREEN_WIDTH // GRID_SIZE
 GRID_HEIGHT = SCREEN_HEIGHT // GRID_SIZE
 SCREEN_CENTER = SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2
+
 # Направления движения:
 UP = (0, -1)
 DOWN = (0, 1)
@@ -30,7 +31,7 @@ APPLE_COLOR = (255, 0, 0)
 SNAKE_COLOR = (0, 255, 0)
 
 # Скорость движения змейки:
-SPEED = 20
+speed = 20
 
 # Настройка игрового окна:
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0, 32)
@@ -53,8 +54,7 @@ class GameObject:
 
     def draw(self):
         """Заглушка, метод будет определен в потомках."""
-        raise NotImplementedError('Определите метод Draw' %
-                                  (self.__class__.__name__))
+        raise NotImplementedError(f'Определите Draw {type(self).__name__}')
 
 
 class Apple(GameObject):
@@ -62,12 +62,15 @@ class Apple(GameObject):
 
     def __init__(self, position=SCREEN_CENTER,
                  body_color=APPLE_COLOR):
-        self.position = position
-        self.body_color = body_color
+        super().__init__(position, body_color)
 
     def randomize_position(self, object):
         """Устанавливаем случайные координаты."""
-        new_pos = get_rnd_pos()
+        # Проверяем есть ли хотя бы одна свободная клетка.
+        if object.length < (GRID_HEIGHT * GRID_WIDTH):
+            new_pos = get_rnd_pos()
+        else:
+            object.reset()
         # Если новая позиция занята змейкой, запрашиваем новые координаты.
         if new_pos in object.positions:
             self.randomize_position(object)
@@ -83,13 +86,12 @@ class Snake(GameObject):
 
     def __init__(self, position=SCREEN_CENTER,
                  body_color=SNAKE_COLOR):
-        self.position = position
         self.positions = [position]
         self.length = 1
         self.last = None
         self.direction = RIGHT
         self.next_direction = None
-        self.body_color = body_color
+        super().__init__(position, body_color)
 
     def update_direction(self):
         """Обновляет направление движения."""
@@ -125,6 +127,7 @@ class Snake(GameObject):
         # Если длина змейки не увеличилась удаляем последний элемент.
         if self.length < len(self.positions):
             self.last = self.positions.pop()
+        self.draw(screen)
 
     def reset(self):
         """Сбрасываем змейку и начинаем игру заново."""
@@ -154,12 +157,18 @@ def handle_keys(game_object):
                 game_object.next_direction = LEFT
             elif event.key == pygame.K_RIGHT and game_object.direction != LEFT:
                 game_object.next_direction = RIGHT
+            # Добавим регулировку скорости игры
+            elif event.key == pygame.K_PAGEDOWN and speed > 5:
+                globals()['speed'] -= 5
+            elif event.key == pygame.K_PAGEUP and speed < 50:
+                globals()['speed'] += 5
 
 
 def get_rnd_pos():
     """Возвращает случайные координаты на игровом поле."""
-    return (randint(0, GRID_WIDTH) * GRID_SIZE,
-            randint(0, GRID_HEIGHT) * GRID_SIZE
+    # Избегаем прорисовки квадрата за пределами поля.
+    return (randint(1, GRID_WIDTH) * GRID_SIZE - GRID_SIZE,
+            randint(1, GRID_HEIGHT) * GRID_SIZE - GRID_SIZE
             )
 
 
@@ -183,16 +192,15 @@ def main():
                   )
 
     while True:
-        clock.tick(SPEED)
+        clock.tick(speed)
 
         # Тут опишите основную логику игры.
         handle_keys(snake)
         snake.update_direction()
         snake.move()
-        snake.draw(screen)
         apple.draw(screen)
         # Проверяем на столкновение головы с телом змейки.
-        if snake.get_head_position in snake.positions[1:]:
+        if snake.get_head_position() in snake.positions[1:]:
             snake.reset()
         # Проверяем съели ли яблоко.
         if snake.get_head_position() == apple.position:
