@@ -32,6 +32,9 @@ SNAKE_COLOR = (0, 255, 0)
 
 # Скорость движения змейки:
 speed = 20
+MIN_SPEED = 5
+MAX_SPEED = 50
+SPEED_STEP = 5
 
 # Настройка игрового окна:
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0, 32)
@@ -59,10 +62,6 @@ class GameObject:
 
 class Apple(GameObject):
     """Apple Создает объект Яблоко."""
-
-    def __init__(self, position=SCREEN_CENTER,
-                 body_color=APPLE_COLOR):
-        super().__init__(position, body_color)
 
     def randomize_position(self, object):
         """Устанавливаем случайные координаты."""
@@ -158,10 +157,10 @@ def handle_keys(game_object):
             elif event.key == pygame.K_RIGHT and game_object.direction != LEFT:
                 game_object.next_direction = RIGHT
             # Добавим регулировку скорости игры
-            elif event.key == pygame.K_PAGEDOWN and speed > 5:
-                globals()['speed'] -= 5
-            elif event.key == pygame.K_PAGEUP and speed < 50:
-                globals()['speed'] += 5
+            elif event.key == pygame.K_PAGEDOWN and speed > MIN_SPEED:
+                globals()['speed'] -= SPEED_STEP
+            elif event.key == pygame.K_PAGEUP and speed < MAX_SPEED:
+                globals()['speed'] += SPEED_STEP
 
 
 def get_rnd_pos():
