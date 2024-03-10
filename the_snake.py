@@ -194,7 +194,7 @@ def draw_s_bar(surface):
     """Рисуем рамку экрана"""
     rect = pygame.Rect(0, SCREEN_HEIGHT, S_BAR_WIDTH, S_BAR_HEIGHT)
     pygame.draw.rect(surface, BOARD_BACKGROUND_COLOR, rect)
-    pygame.draw.rect(surface, BORDER_COLOR, rect,3)
+    pygame.draw.rect(surface, BORDER_COLOR, rect, 3)
 
 
 def main():
