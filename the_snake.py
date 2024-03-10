@@ -11,6 +11,10 @@ GRID_SIZE = 20
 GRID_WIDTH = SCREEN_WIDTH // GRID_SIZE
 GRID_HEIGHT = SCREEN_HEIGHT // GRID_SIZE
 SCREEN_CENTER = SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2
+S_BAR_WIDTH = 640
+S_BAR_HEIGHT = 80
+WINDOW_WIDTH = SCREEN_WIDTH
+WINDOW_HEIGHT = SCREEN_HEIGHT + S_BAR_HEIGHT
 
 # Направления движения:
 UP = (0, -1)
@@ -30,6 +34,9 @@ APPLE_COLOR = (255, 0, 0)
 # Цвет змейки
 SNAKE_COLOR = (0, 255, 0)
 
+# Цвет текста.
+FONT_COLOR = (255, 215, 0)
+
 # Скорость движения змейки:
 speed = 20
 MIN_SPEED = 5
@@ -37,10 +44,13 @@ MAX_SPEED = 50
 SPEED_STEP = 5
 
 # Настройка игрового окна:
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0, 32)
+screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT), 0, 32)
 
 # Заголовок окна игрового поля:
 pygame.display.set_caption('Змейка')
+
+# Настраиваем шрифт надписей.
+font = pygame.font.Font(None, 48)
 
 # Настройка времени:
 clock = pygame.time.Clock()
@@ -180,6 +190,13 @@ def draw_rect(surface, position, color):
     pygame.draw.rect(surface, BORDER_COLOR, rect, 1)
 
 
+def draw_s_bar(surface):
+    """Рисуем рамку экрана"""
+    rect = pygame.Rect(0, SCREEN_HEIGHT, S_BAR_WIDTH, S_BAR_HEIGHT)
+    pygame.draw.rect(surface, BOARD_BACKGROUND_COLOR, rect)
+    pygame.draw.rect(surface, BORDER_COLOR, rect,3)
+
+
 def main():
     """Создаем классы, и логику игры."""
     # Тут нужно создать экземпляры классов.
@@ -192,7 +209,13 @@ def main():
 
     while True:
         clock.tick(speed)
-
+        draw_s_bar(screen)
+        text = font.render(f'Длина змейки: {snake.length}. '
+                           f'Скорость игры: {speed // 5}.',
+                           True,
+                           FONT_COLOR
+                           )
+        screen.blit(text, (15, SCREEN_HEIGHT + 10))
         # Тут опишите основную логику игры.
         handle_keys(snake)
         snake.update_direction()
